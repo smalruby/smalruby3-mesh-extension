@@ -1,6 +1,6 @@
 {
     "name": "__MSG_MESH_APPNAME__",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "author": "__MSG_MESH_AUTHOR__",
     "description" : "__MSG_MESH_APPDESC__",
     "homepage_url": "https://github.com/smalruby/smalruby3-gui/wiki/Mesh",
@@ -26,7 +26,7 @@
         "scripts": [
             "background.js"
         ],
-        "persistent": false
+        "persistent": true
     },
     "externally_connectable": {
         "matches": [
