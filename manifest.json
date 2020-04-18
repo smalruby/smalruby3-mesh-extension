@@ -14,7 +14,9 @@
 	  },
     "permissions": [
         "privacy",
-        "storage"
+        "storage",
+        "tabs",
+        "*://*.smalruby.jp/*"
     ],
     "browser_action": {
         "default_icon": "image/mesh_extension32.png",
@@ -25,6 +27,11 @@
             "background.js"
         ],
         "persistent": false
+    },
+    "externally_connectable": {
+        "matches": [
+            "*://*.smalruby.jp/*"
+        ]
     },
     "manifest_version": 2,
     "minimum_chrome_version": "48.0.2564"

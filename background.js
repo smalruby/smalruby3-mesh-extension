@@ -1,4 +1,6 @@
 const TTL_SECONDS = 5 * 60;
+const CHECK_TTL_INTERVAL_SECONDS = 1 * 60;
+
 const LOCAL_STORAGE_KEYS = [
     'smalruby3-mesh-extension-policy',
     'smalruby3-mesh-extension-ttl'
@@ -6,14 +8,18 @@ const LOCAL_STORAGE_KEYS = [
 
 const webRTCIPHandlingPolicy = chrome.privacy.network.webRTCIPHandlingPolicy;
 
-const getTtlSeconds = () => {
-    return Math.floor(Date.now() / 1000) + TTL_SECONDS;
+const calcSeconds = (miliseconds) => {
+    return Math.floor(miliseconds / 1000);
+};
+
+const getTTLSeconds = () => {
+    return calcSeconds(Date.now()) + TTL_SECONDS;
 };
 
 const createSavedPolicy = (policy) => {
     return {
         'smalruby3-mesh-extension-policy': policy,
-        'smalruby3-mesh-extension-ttl': getTtlSeconds()
+        'smalruby3-mesh-extension-ttl': getTTLSeconds()
     };
 };
 
@@ -23,7 +29,7 @@ const changeWebRTCIPHandlingPolicy = () => {
     console.log('Changing webRTCIPHandlingPolicy to default');
 
     if (changing) {
-        console.warn('Not changed: reason=<Changing webRTCIPHandlingPolicy>');
+        console.log('Not changed: reason=<Changing webRTCIPHandlingPolicy>');
         return;
     }
 
@@ -38,11 +44,12 @@ const changeWebRTCIPHandlingPolicy = () => {
 
             changing = false;
         } else {
-            chrome.storage.local.set(createSavedPolicy(details.value), () => {
+            const savedPolicy = createSavedPolicy(details.value);
+            chrome.storage.local.set(savedPolicy, () => {
                 if (chrome.runtime.lastError === undefined) {
                     webRTCIPHandlingPolicy.set({value: 'default'}, () => {
                         if (chrome.runtime.lastError === undefined) {
-                            console.log('Succeeded to change webRTCIPHandlingPolicy to default');
+                            console.log(`Succeeded to change webRTCIPHandlingPolicy to default: ttl=<${savedPolicy['smalruby3-mesh-extension-ttl']}>`);
 	                          chrome.browserAction.setBadgeText({text: 'ON'});
 
                             changing = false;
@@ -74,7 +81,7 @@ const revertWebRTCIPHandlingPolicy = () => {
     console.log('Revert webRTCIPHandlingPolicy to saved value');
 
     if (changing) {
-        console.warn('Not reverted: reason=<changing webRTCIPHandlingPolicy>');
+        console.log('Not reverted: reason=<changing webRTCIPHandlingPolicy>');
         return;
     }
 
@@ -111,7 +118,7 @@ const revertWebRTCIPHandlingPolicy = () => {
                             }
                         });
                     } else {
-                        console.warn('Not reverted: reason=<not saved webRTCIPHandlingPolicy>');
+                        console.log('Not reverted: reason=<not saved webRTCIPHandlingPolicy>');
 	                      chrome.browserAction.setBadgeText({text: ''});
 
                         changing = false;
@@ -131,21 +138,62 @@ const revertWebRTCIPHandlingPolicy = () => {
     });
 };
 
-chrome.runtime.onInstalled.addListener(() => {
-    // TODO: スモウルビー3のサイトのみ処理する
-    // TODO: スモウルビー3のサイトを設定で追加できる。192.168.*.*とか
-    // TODO: WebRTCの設定を変更する
-    // TODO: WebRTCの設定を元に戻す
-    // TODO: WebRTCの設定を変更したときにバッジを表示する ON
-    // TODO: WebRTCの設定を元に戻したときにバッジを消す
-    // TODO: 拡張機能のボタンを押すと一時的にWebRTCの設定を変更する
-    // TODO: メッシュ機能でWebRTCで接続するときだけWebRTCの設定を変更し、接続が完了したときや、切断したときにWebRTCの設定を元に戻す
-    console.log("Smalruby3 Mesh Extension installed.");
+const checkTTL = () => {
+    const now = new Date();
+    const nowSeconds = calcSeconds(now);
 
+    console.log(`Checking TTL: now=<${now} (${nowSeconds})>`);
 
-	  chrome.browserAction.onClicked.addListener(() => {
-        changeWebRTCIPHandlingPolicy();
+    chrome.storage.local.get(LOCAL_STORAGE_KEYS, (value) => {
+        if (chrome.runtime.lastError === undefined) {
+            console.log(`Saved webRTCIPHandlingPolicy: ${JSON.stringify(value, null, 2)}`);
 
-        setTimeout(revertWebRTCIPHandlingPolicy, 60 * 1000);
+            const ttl = value['smalruby3-mesh-extension-ttl'];
+            if (ttl) {
+                if (nowSeconds > ttl) {
+                    console.log(`Reached TTL: now=<${nowSeconds}> ttl=<${ttl}>`);
+
+                    revertWebRTCIPHandlingPolicy();
+                } else {
+                    console.log(`Not reached TTL: now=<${Number(now)}> ttl=<${ttl}> diff=<${ttl - nowSeconds}>`);
+                }
+            } else {
+                console.log('Not saved webRTCIPHandlingPolicy');
+            }
+        } else {
+            console.error(`Failed to get saved webRTCIPHandlingPolicy: lastError=<${chrome.runtime.lastError}>`);
+        }
     });
+};
+
+chrome.runtime.onInstalled.addListener(() => {
+    console.log('Smalruby3 Mesh Extension installed.');
+
+    chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
+        console.log(`Received message from web page: ${JSON.stringify(request, null, 2)}`);
+
+        switch (request.action) {
+        case 'change':
+            changeWebRTCIPHandlingPolicy();
+            break;
+        case 'revert':
+            revertWebRTCIPHandlingPolicy();
+            break;
+        }
+
+        sendResponse({response: 'OK'});
+    });
+
+	  chrome.browserAction.onClicked.addListener((tab) => {
+        if (tab.url.match(/^https?:\/\/[^\/]*\.?smalruby.jp(:[0-9]+)?\//)) {
+            changeWebRTCIPHandlingPolicy();
+        }
+    });
+
+    checkTTL();
+    setInterval(checkTTL, CHECK_TTL_INTERVAL_SECONDS * 1000);
+});
+
+chrome.runtime.onSuspend.addListener(() => {
+    revertWebRTCIPHandlingPolicy();
 });
