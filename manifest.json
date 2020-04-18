@@ -1,0 +1,31 @@
+{
+    "name": "__MSG_MESH_APPNAME__",
+    "version": "0.0.1",
+    "author": "__MSG_MESH_AUTHOR__",
+    "description" : "__MSG_MESH_APPDESC__",
+    "homepage_url": "https://github.com/smalruby/smalruby3-gui/wiki/Mesh",
+    "default_locale": "ja",
+	  "icons": {
+		    "16": "image/mesh_extension16.png",
+		    "32": "image/mesh_extension32.png",
+		    "48": "image/mesh_extension48.png",
+		    "64": "image/mesh_extension64.png",
+		    "128": "image/mesh_extension128.png"
+	  },
+    "permissions": [
+        "privacy",
+        "storage"
+    ],
+    "browser_action": {
+        "default_icon": "image/mesh_extension32.png",
+        "default_title": "__MSG_MESH_TITLE__"
+    },
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": false
+    },
+    "manifest_version": 2,
+    "minimum_chrome_version": "48.0.2564"
+}

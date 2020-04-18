@@ -1,0 +1,14 @@
+{
+    "MESH_APPDESC": {
+        "message": "スモウルビー3のメッシュ機能を使うときにプライバシー設定を変更してすべてのネットワークの経路情報をWebRTCの接続先に提供する"
+    },
+    "MESH_APPNAME": {
+        "message": "スモウルビー3 メッシュ拡張機能"
+    },
+    "MESH_AUTHOR": {
+        "message": "NPO法人Rubyプログラミング少年団"
+    },
+    "MESH_TITLE": {
+        "message": "WebRTC設定変更"
+    }
+}
