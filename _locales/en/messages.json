@@ -1,0 +1,14 @@
+{
+    "MESH_APPDESC": {
+        "message": "Change webRTCIPHandlingPolicy to default when use Smalruby3 Mesh Extension"
+    },
+    "MESH_APPNAME": {
+        "message": "Smalruby3 Mesh Extension"
+    },
+    "MESH_AUTHOR": {
+        "message": "Ruby Programming Shounendan"
+    },
+    "MESH_TITLE": {
+        "message": "Change WebRTC Setting"
+    }
+}
