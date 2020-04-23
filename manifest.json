@@ -1,6 +1,6 @@
 {
     "name": "__MSG_MESH_APPNAME__",
-    "version": "0.1.0",
+    "version": "0.1.2",
     "author": "__MSG_MESH_AUTHOR__",
     "description" : "__MSG_MESH_APPDESC__",
     "homepage_url": "https://github.com/smalruby/smalruby3-gui/wiki/Mesh",
@@ -16,7 +16,8 @@
         "privacy",
         "storage",
         "tabs",
-        "*://*.smalruby.jp/*"
+        "*://*.smalruby.jp/*",
+        "https://*.smalruby.app/*"
     ],
     "browser_action": {
         "default_icon": "image/mesh_extension32.png",
@@ -30,7 +31,8 @@
     },
     "externally_connectable": {
         "matches": [
-            "*://*.smalruby.jp/*"
+            "*://*.smalruby.jp/*",
+            "https://*.smalruby.app/*"
         ]
     },
     "manifest_version": 2,

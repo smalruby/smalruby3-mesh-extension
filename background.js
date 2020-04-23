@@ -185,7 +185,7 @@ chrome.runtime.onInstalled.addListener(() => {
     });
 
 	  chrome.browserAction.onClicked.addListener((tab) => {
-        if (tab.url.match(/^https?:\/\/[^\/]*\.?smalruby.jp(:[0-9]+)?\//)) {
+        if (tab.url.match(/^https?:\/\/[^\/]*\.?smalruby.(jp|app)(:[0-9]+)?\//)) {
             changeWebRTCIPHandlingPolicy();
         }
     });
